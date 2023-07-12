@@ -1,3 +1,7 @@
+import { auth } from '@/lib/firebase';
+import { setUser } from '@/redux/features/user/userSlice';
+import { useAppDispatch, useAppSelector } from '@/redux/hooks';
+import { signOut } from 'firebase/auth';
 import { HiOutlineSearch } from 'react-icons/hi';
 import { Link } from 'react-router-dom';
 import logo from '../assets/images/technet-logo.png';
@@ -14,6 +18,16 @@ import {
 } from '../components/ui/dropdown-menu';
 
 export default function Navbar() {
+  const { user } = useAppSelector((state) => state.user);
+
+  const dispatch = useAppDispatch();
+
+  const handleLogout = () => {
+    signOut(auth).then(() => {
+      dispatch(setUser(null));
+    });
+  };
+
   return (
     <nav className="w-full h-16 fixed top backdrop-blur-lg z-10">
       <div className="h-full w-full bg-white/60">
@@ -60,16 +74,28 @@ export default function Navbar() {
                     <DropdownMenuItem className="cursor-pointer">
                       Profile
                     </DropdownMenuItem>
-                    <Link to="/login">
-                      <DropdownMenuItem className="cursor-pointer">
-                        Login
+                    {!user.email && (
+                      <>
+                        <Link to="/login">
+                          <DropdownMenuItem className="cursor-pointer">
+                            Login
+                          </DropdownMenuItem>
+                        </Link>
+                        <Link to="/signup">
+                          <DropdownMenuItem className="cursor-pointer">
+                            Sign up
+                          </DropdownMenuItem>
+                        </Link>
+                      </>
+                    )}
+                    {user.email && (
+                      <DropdownMenuItem
+                        onClick={handleLogout}
+                        className="cursor-pointer"
+                      >
+                        Logout
                       </DropdownMenuItem>
-                    </Link>
-                    <Link to="/signup">
-                      <DropdownMenuItem className="cursor-pointer">
-                        Sign up
-                      </DropdownMenuItem>
-                    </Link>
+                    )}
                   </DropdownMenuContent>
                 </DropdownMenu>
               </li>
